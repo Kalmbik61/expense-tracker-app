@@ -8,6 +8,8 @@ import ManageExpensesScreen from "./src/components/screens/ManageExpensesScreen/
 import RecentExpensesScreen from "./src/components/screens/RecentExpensesScreen/RecentExpensesScreen";
 import { STYLES } from "./src/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
+import IconButton from "./src/components/global/IconButton/IconButton";
+import ExpensesContextProvider from "./src/Context/ExpensesContext";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -15,7 +17,7 @@ const Tab = createBottomTabNavigator();
 function TabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         headerStyle: {
           backgroundColor: STYLES.COLORS.primary500,
         },
@@ -24,7 +26,15 @@ function TabNavigator() {
           backgroundColor: STYLES.COLORS.primary500,
         },
         tabBarActiveTintColor: STYLES.COLORS.accent500,
-      }}
+        headerRight: ({ tintColor }) => (
+          <IconButton
+            icon={"add"}
+            size={24}
+            color={tintColor}
+            onPress={() => navigation.navigate(SCREEN_NAMES.MANAGE_EXPENSES)}
+          />
+        ),
+      })}
     >
       <Tab.Screen
         name={SCREEN_NAMES.RECENT_EXPENSES}
@@ -56,19 +66,29 @@ export default function App() {
   return (
     <>
       <StatusBar style='light' />
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name={SCREEN_NAMES.EXPENSES_OVERVIEW}
-            component={TabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name={SCREEN_NAMES.ALL_EXPENSES}
-            component={AllExpensesScreen}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ExpensesContextProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: STYLES.COLORS.primary500,
+              },
+              headerTintColor: "#fff",
+            }}
+          >
+            <Stack.Screen
+              name={SCREEN_NAMES.EXPENSES_OVERVIEW}
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name={SCREEN_NAMES.MANAGE_EXPENSES}
+              component={ManageExpensesScreen}
+              options={{ presentation: "modal", title: "Manage Expense" }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ExpensesContextProvider>
     </>
   );
 }

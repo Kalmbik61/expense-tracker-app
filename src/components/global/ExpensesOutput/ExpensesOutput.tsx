@@ -9,7 +9,7 @@ export default function ExpensesOutput({
   expensesPeriod,
 }: IExpensesOutputProps) {
   return (
-    <View>
+    <View style={styles.container}>
       <ExpensesSummary expenses={expenses} periodName={expensesPeriod} />
       <ExpensesList expenses={expenses} />
     </View>
