@@ -6,6 +6,9 @@ import IconButton from "../../../global/IconButton/IconButton";
 import { STYLES } from "../../../../styles/variables";
 import { IExpenseFormProps } from "./ExpenseForm.props";
 import { ExpensesContext } from "../../../../Context/ExpensesContext";
+import { storeExpenseApi, updateExpensesApi } from "../../../../utils/api/http";
+import Loading from "../../../global/Loading/Loading";
+import ErrorOverlay from "../../../global/ErrorOverlay/ErrorOverlay";
 
 interface IValues {
   amount: string;
@@ -23,13 +26,16 @@ export default function ExpenseForm({ expense, onCancel }: IExpenseFormProps) {
     title: expense?.title || "",
   });
   const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorFetch, setErrorFetch] = useState<string>("");
+
   const isEditing = !!expense;
 
   const onChangeValue = (value: string, valueKey: keyof IValues) => {
     setValues((prev) => ({ ...prev, [valueKey]: value }));
   };
 
-  const onSubmitHandler = () => {
+  const onSubmitHandler = async () => {
     const data = {
       amount: +values.amount,
       date: new Date(values.date),
@@ -47,16 +53,32 @@ export default function ExpenseForm({ expense, onCancel }: IExpenseFormProps) {
       setError("Amout, Date and Description are required!");
       return;
     }
-
-    if (isEditing) {
-      updateExpense({ ...data, id: expense.id });
-    } else {
-      addExpense(data);
+    setLoading(true);
+    try {
+      if (isEditing) {
+        await updateExpensesApi(expense.id, data);
+        updateExpense({ ...data, id: expense.id });
+      } else {
+        const id = await storeExpenseApi(data);
+        if (!id) return;
+        addExpense({ ...data, id });
+      }
+      onCancel();
+    } catch {
+      setErrorFetch("Could not save data - please try again later!");
+      setLoading(false);
     }
-    onCancel();
+    setLoading(false);
   };
 
-  return (
+  if (!!errorFetch && !loading)
+    return (
+      <ErrorOverlay message={errorFetch} onConfirm={() => setErrorFetch("")} />
+    );
+
+  return loading ? (
+    <Loading />
+  ) : (
     <View style={styles.container}>
       <View>
         <Text style={styles.title}>Your Expense</Text>

@@ -4,19 +4,23 @@ import { IExpense } from "../components/global/ExpensesOutput/ExpensesOutput.pro
 interface IContext {
   readonly expenses: IExpense[];
 
-  addExpense({ title, amount, date }: Omit<IExpense, "id">): void;
+  setExpenses(expenses: IExpense[]): void;
+  addExpense({ title, amount, date }: IExpense): void;
   deleteExpense(id: string): void;
   updateExpense(ex: IExpense): void;
 }
 
 export const ExpensesContext = createContext<IContext>({
   expenses: [],
+
+  setExpenses: () => {},
   addExpense: () => {},
   deleteExpense: () => {},
   updateExpense: () => {},
 });
 
 enum ACTIONS {
+  SET_EXPENSES = "SET_EXPENSES",
   ADD = "ADD",
   DELETE = "DELETE",
   UPDATE = "UPDATE",
@@ -29,9 +33,11 @@ interface ActionType {
 
 function reducer(state = MOCK, action: ActionType) {
   switch (action.type) {
+    case ACTIONS.SET_EXPENSES:
+      const inverted = action.payload.reverse();
+      return inverted;
     case ACTIONS.ADD:
-      const id = new Date().toString() + Math.random().toString();
-      return [{ ...action.payload, id }, ...state];
+      return [{ ...action.payload }, ...state];
     case ACTIONS.UPDATE:
       const updItemIndex = state.findIndex(
         (item) => item.id === action.payload.id
@@ -111,9 +117,13 @@ export default function ExpensesContextProvider({
 }: {
   children: ReactNode;
 }) {
-  const [state, dispatch] = useReducer(reducer, MOCK);
+  const [state, dispatch] = useReducer(reducer, []);
 
-  const addExpense = (expData: Omit<IExpense, "id">) => {
+  const setExpenses = (data: IExpense[]) => {
+    dispatch({ type: ACTIONS.SET_EXPENSES, payload: data });
+  };
+
+  const addExpense = (expData: IExpense) => {
     dispatch({ type: ACTIONS.ADD, payload: expData });
   };
 
@@ -127,7 +137,13 @@ export default function ExpensesContextProvider({
 
   return (
     <ExpensesContext.Provider
-      value={{ expenses: state, addExpense, deleteExpense, updateExpense }}
+      value={{
+        expenses: state,
+        setExpenses,
+        addExpense,
+        deleteExpense,
+        updateExpense,
+      }}
     >
       {children}
     </ExpensesContext.Provider>
