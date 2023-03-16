@@ -1,13 +1,13 @@
 import { useContext, useLayoutEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import styles from "./ManageExpensesScreen.styles";
 import IconButton from "../../global/IconButton/IconButton";
 import { STYLES } from "../../../styles/variables";
 import { ExpensesContext } from "../../../Context/ExpensesContext";
+import ExpenseForm from "./ExpenseForm/ExpenseForm";
 
 export default function ManageExpensesScreen({ route, navigation }: any) {
-  const { addExpense, deleteExpense, updateExpense, expenses } =
-    useContext(ExpensesContext);
+  const { deleteExpense, expenses } = useContext(ExpensesContext);
   const id = route.params?.expenseId;
   const isEditing = !!id;
 
@@ -24,30 +24,14 @@ export default function ManageExpensesScreen({ route, navigation }: any) {
   const onCancel = () => {
     navigation.goBack();
   };
-  const onComfirm = () => {
-    if (isEditing) {
-      // updateExpense({})
-    } else {
-      addExpense({ date: new Date(), amount: 29.99, title: "test" });
-    }
-    navigation.goBack();
-  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.btns}>
-        <IconButton
-          icon={"arrow-undo-outline"}
-          color={STYLES.COLORS.error50}
-          size={24}
-          onPress={onCancel}
-        />
-        <IconButton
-          icon={"add-circle"}
-          color={STYLES.COLORS.primary200}
-          size={24}
-          onPress={onComfirm}
-        />
-      </View>
+    <ScrollView style={styles.container}>
+      <ExpenseForm
+        expense={expenses.find((item) => item.id === id)}
+        onCancel={onCancel}
+      />
+
       {isEditing && (
         <View style={styles.delete_container}>
           <IconButton
@@ -58,6 +42,6 @@ export default function ManageExpensesScreen({ route, navigation }: any) {
           />
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }

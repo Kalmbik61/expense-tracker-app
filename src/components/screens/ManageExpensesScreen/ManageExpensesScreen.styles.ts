@@ -7,14 +7,7 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: STYLES.COLORS.primary800,
   },
-  btns: {
-    borderRadius: 4,
-    padding: 8,
-    backgroundColor: STYLES.COLORS.primary500,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   delete_container: {
     marginTop: 16,
     paddingTop: 8,

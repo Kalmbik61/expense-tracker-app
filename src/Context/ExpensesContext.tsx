@@ -36,8 +36,11 @@ function reducer(state = MOCK, action: ActionType) {
       const updItemIndex = state.findIndex(
         (item) => item.id === action.payload.id
       );
-      const newArr = [...state];
-      newArr[updItemIndex] = action.payload;
+      const newArr = [
+        ...state.slice(0, updItemIndex),
+        action.payload,
+        ...state.slice(updItemIndex + 1),
+      ];
       return newArr;
     case ACTIONS.DELETE:
       return state.filter((item) => item.id !== action.payload);
@@ -119,7 +122,7 @@ export default function ExpensesContextProvider({
   };
 
   const updateExpense = (expData: IExpense) => {
-    dispatch({ type: ACTIONS.DELETE, payload: expData });
+    dispatch({ type: ACTIONS.UPDATE, payload: expData });
   };
 
   return (

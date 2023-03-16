@@ -12,7 +12,7 @@ export default function RecentExpensesScreen() {
 
     return ex.date >= date7DaysAgo && ex.date <= today;
   });
-
+  // console.log(expenses);
   return (
     <ExpensesOutput expenses={resentExpenses} expensesPeriod='Last 7 Days' />
   );
